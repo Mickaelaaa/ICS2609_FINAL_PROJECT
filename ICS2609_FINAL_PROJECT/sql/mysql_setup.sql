@@ -123,6 +123,43 @@ CREATE TABLE grades (
         FOREIGN KEY (graded_by) REFERENCES users(u_id)
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- View for teacher information
+CREATE VIEW view_teachers AS 
+SELECT u_id, email, first_name, last_name, created_at 
+FROM users 
+WHERE role = 'teacher';
+
+-- View for student information
+CREATE VIEW view_students AS 
+SELECT u_id, email, first_name, last_name, created_at 
+FROM users 
+WHERE role = 'student';
+
+-- View for course catalogue with assigned teachers
+CREATE VIEW view_course_teachers AS
+SELECT 
+    c.c_id AS course_id,
+    c.title AS course_title,
+    c.status AS course_status,
+    u.u_id AS teacher_id,
+    CONCAT(u.first_name, ' ', u.last_name) AS teacher_name,
+    u.email AS teacher_email
+FROM courses c
+JOIN users u ON c.teacher_id = u.u_id;
+
+-- View for students enrolled per course
+CREATE VIEW view_course_students AS
+SELECT 
+    c.c_id AS course_id,
+    c.title AS course_title,
+    u.u_id AS student_id,
+    CONCAT(u.first_name, ' ', u.last_name) AS student_name,
+    u.email AS student_email,
+    e.status AS enrollment_status,
+    e.enrolled_at
+FROM courses c
+JOIN enrollments e ON c.c_id = e.course_id
+JOIN users u ON e.student_id = u.u_id;
 -- 1. USERS
 -- Admins (3)
 INSERT INTO users (u_id, email, first_name, last_name, role) VALUES
